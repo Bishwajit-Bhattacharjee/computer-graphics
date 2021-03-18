@@ -332,6 +332,7 @@ void drawScreen(){
 
     glTranslatef(+BigRadius, 0, 0);   // undo the translation done below
     glRotatef(gunRotationAngle, 0, 0, 1);  // apply the rotation on the origin
+    glRotatef(gunAxisRotationAngle, 1, 0, 0);
     glTranslatef(-BigRadius, 0, 0);   // bring the top point of the semi-sphere to origin
 
     positionSmallSemiSphere();
@@ -388,6 +389,17 @@ void keyboardListener(unsigned char key, int x,int y){
         case 's':
             gunRotationAngle -= angleSensitivity;
             gunRotationAngle = max(gunRotationAngle, MIN_ANGLE);
+            break;
+        case 'd':
+            gunAxisRotationAngle += angleSensitivity;
+            if (gunAxisRotationAngle > 360)
+                gunAxisRotationAngle -= 360;
+            break;
+        case 'f':
+            gunAxisRotationAngle -= angleSensitivity;
+            if (gunAxisRotationAngle < -360)
+                gunAxisRotationAngle += 360;
+
             break;
         default:
             break;
