@@ -18,7 +18,11 @@ double keySensitivity = 10, angleSensitivity = 3;
 
 // constants about shapes
 const int slice = 50, stack = 50;
-double const BigRadius = 50, smallRadius = 20;
+double const BigRadius = 40, smallRadius = 20, tailRadius = 15;
+double const MAX_ANGLE = 30, MIN_ANGLE = -30;
+double cylinderHeight = 150;
+double entireRotationAngle = 0, halfSphereRotationAngle = 0;
+double gunAxisRotationAngle = 0, gunRotationAngle = 0;
 
 struct Point{
     double x{},y{},z{};
@@ -221,15 +225,58 @@ void drawSphere(double radius,int slices,int stacks)
 
 
 void drawCylinder(double h, double r){
-   Point points[100][100];
-
+   Point points[100][110];
+   double newSlice = slice * 2;
    for (int i = 0; i <= stack; i++){
-       for (int j = 0; j <= slice; j++){
-           points[i][j].x = i * h/stack;
-           //points[i][j].y = r * cos((double)j/slice)
+       for (int j = 0; j <= newSlice; j++){
+           points[i][j].x = (double) i * h/stack;
+           points[i][j].y = r * cos((double )j/(double )newSlice * 2* pi);
+           points[i][j].z = r * sin((double )j/ (double )newSlice * 2 * pi);
        }
    }
 
+   for (int i = 0; i < stack; i++){
+       for (int j = 0; j < newSlice; j++){
+           glBegin(GL_QUADS);{
+               //upper hemisphere
+               glColor3f(j&1 , j&1, j&1);
+               glVertex3f(points[i][j].x,points[i][j].y,points[i][j].z);
+               glVertex3f(points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
+               glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
+               glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
+           }glEnd();
+
+       }
+   }
+}
+
+void drawTail(){
+    Point points[110][110];
+    double newSlice = slice * 2;
+    for (int i = 0; i <= stack; i++){
+        double angle = (double )i / stack * pi / 2;
+        double r = smallRadius + tailRadius - tailRadius * cos(angle);
+
+        for (int j = 0; j <= newSlice; j++){
+            points[i][j].x = (double)tailRadius * sin(angle);
+            points[i][j].y = r * cos((double )j/(double )newSlice * 2* pi);
+            points[i][j].z = r * sin((double )j/ (double )newSlice * 2 * pi);
+        }
+    }
+
+    for (int i = 0; i < stack; i++){
+        for (int j = 0; j < newSlice; j++){
+            glBegin(GL_QUADS);{
+                //upper hemisphere
+                glColor3f(j&1 , j&1, j&1);
+                glVertex3f(points[i][j].x,points[i][j].y,points[i][j].z);
+                glVertex3f(points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
+                glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
+                glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
+            }glEnd();
+
+        }
+    }
 }
 
 void positionBigSemiSphereLeft(){
@@ -248,13 +295,6 @@ void positionBigSemiSphereRight(){
     glPopMatrix();
 }
 
-void positionBigSphere(){
-    glPushMatrix();
-    //glRotatef(90, 0, 0, 1);
-    positionBigSemiSphereLeft();
-    glPopMatrix();
-}
-
 void positionSmallSemiSphere(){
     glPushMatrix();
     glTranslatef(BigRadius + smallRadius, 0, 0);
@@ -263,12 +303,40 @@ void positionSmallSemiSphere(){
     glPopMatrix();
 }
 
+void positionCylinder(){
+    glPushMatrix();
+    glTranslatef(BigRadius + smallRadius, 0, 0);
+    glRotatef(90, 1, 0, 0);
+    drawCylinder(cylinderHeight, smallRadius);
+    glPopMatrix();
+}
+
+void positionTail(){
+    glPushMatrix();
+    glTranslatef(BigRadius + smallRadius + cylinderHeight, 0, 0);
+    glRotatef(90, 1, 0, 0);
+    drawTail();
+    glPopMatrix();
+}
+
 void drawScreen(){
     drawAxes();
-    //drawRectangle();
+    //drawRectangle()
+    glRotatef(entireRotationAngle, 0, 1, 0);
+
     positionBigSemiSphereLeft();
+
+    glRotatef(halfSphereRotationAngle, 0, 0, 1);
+
     positionBigSemiSphereRight();
+
+    glTranslatef(+BigRadius, 0, 0);   // undo the translation done below
+    glRotatef(gunRotationAngle, 0, 0, 1);  // apply the rotation on the origin
+    glTranslatef(-BigRadius, 0, 0);   // bring the top point of the semi-sphere to origin
+
     positionSmallSemiSphere();
+    positionCylinder();
+    positionTail();
 }
 
 void keyboardListener(unsigned char key, int x,int y){
@@ -296,6 +364,30 @@ void keyboardListener(unsigned char key, int x,int y){
         case '6':
             r = rotateAroundAnAxis(l, r, -angleSensitivity);
             u = rotateAroundAnAxis(l, u, -angleSensitivity);
+            break;
+        case 'q':
+            entireRotationAngle  += angleSensitivity;
+            entireRotationAngle = min(entireRotationAngle, MAX_ANGLE);
+            break;
+        case 'w':
+            entireRotationAngle -= angleSensitivity;
+            entireRotationAngle = max(entireRotationAngle, MIN_ANGLE);
+            break;
+        case 'e':
+            halfSphereRotationAngle += angleSensitivity;
+            halfSphereRotationAngle = min(halfSphereRotationAngle, MAX_ANGLE);
+            break;
+        case 'r':
+            halfSphereRotationAngle -= angleSensitivity;
+            halfSphereRotationAngle = max(halfSphereRotationAngle, MIN_ANGLE);
+            break;
+        case 'a':
+            gunRotationAngle += angleSensitivity;
+            gunRotationAngle = min(gunRotationAngle, MAX_ANGLE);
+            break;
+        case 's':
+            gunRotationAngle -= angleSensitivity;
+            gunRotationAngle = max(gunRotationAngle, MIN_ANGLE);
             break;
         default:
             break;
