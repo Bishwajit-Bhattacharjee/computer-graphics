@@ -18,7 +18,7 @@ double keySensitivity = 10, angleSensitivity = 3;
 
 // constants about shapes
 const int slice = 50, stack = 50;
-double const BigRadius = 50;
+double const BigRadius = 50, smallRadius = 20;
 
 struct Point{
     double x{},y{},z{};
@@ -209,36 +209,66 @@ void drawSphere(double radius,int slices,int stacks)
                 glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
                 glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
                 //lower hemisphere
-                glVertex3f(points[i][j].x,-points[i][j].y,points[i][j].z);
-                glVertex3f(points[i][j+1].x,-points[i][j+1].y,points[i][j+1].z);
-                glVertex3f(points[i+1][j+1].x,-points[i+1][j+1].y,points[i+1][j+1].z);
-                glVertex3f(points[i+1][j].x,-points[i+1][j].y,points[i+1][j].z);
+                glColor3f(1-j&1 , 1-j&1, 1-j&1);
+                glVertex3f(-points[i][j].x,points[i][j].y,points[i][j].z);
+                glVertex3f(-points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
+                glVertex3f(-points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
+                glVertex3f(-points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
             }glEnd();
         }
     }
 }
 
+
+void drawCylinder(double h, double r){
+   Point points[100][100];
+
+   for (int i = 0; i <= stack; i++){
+       for (int j = 0; j <= slice; j++){
+           points[i][j].x = i * h/stack;
+           //points[i][j].y = r * cos((double)j/slice)
+       }
+   }
+
+}
+
 void positionBigSemiSphereLeft(){
     glPushMatrix();
-    glRotatef(-180, 0, 0, 1);
-    glRotatef(-180, 1, 0, 0);
+    glRotatef(90, 0, 0, 1);
+    //glRotatef(-180, 1, 0, 0);
     drawSphere(BigRadius, slice,  stack);
     glPopMatrix();
 }
 
 void positionBigSemiSphereRight(){
     glPushMatrix();
+    glRotatef(90, 1, 0, 0);
+    glRotatef(-90, 0, 0, 1);
     drawSphere(BigRadius, slice, stack);
+    glPopMatrix();
+}
+
+void positionBigSphere(){
+    glPushMatrix();
+    //glRotatef(90, 0, 0, 1);
+    positionBigSemiSphereLeft();
+    glPopMatrix();
+}
+
+void positionSmallSemiSphere(){
+    glPushMatrix();
+    glTranslatef(BigRadius + smallRadius, 0, 0);
+    glRotatef(90, 0, 0, 1);
+    drawSphere(smallRadius, slice, stack);
     glPopMatrix();
 }
 
 void drawScreen(){
     drawAxes();
     //drawRectangle();
-    glColor3f(1.0, 0, 0);
-    glRotatef(90, 0, 0, 1);
     positionBigSemiSphereLeft();
     positionBigSemiSphereRight();
+    positionSmallSemiSphere();
 }
 
 void keyboardListener(unsigned char key, int x,int y){
