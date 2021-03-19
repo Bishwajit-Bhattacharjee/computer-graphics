@@ -8,7 +8,7 @@ using namespace std;
 #define pi (2*acos(0.0))
 
 double const EPS = 0;
-int const NUMBER_OF_CIRCLE = 5;
+int const NUMBER_OF_CIRCLE = 2;
 double cameraHeight;
 double cameraAngle;
 int drawgrid;
@@ -16,12 +16,13 @@ int drawaxes;
 double angle;
 int seg, slices;
 double speed = 0.009, tuner = 0.0001;
-double maxSpeed = 0.05, minSpeed = 0.0008;
+double maxSpeed = 0.09, minSpeed = 0.0008;
 double GRID_LEN = 250;
 double R = 100, r = 10;
 bool insideBigCircle[NUMBER_OF_CIRCLE];
 bool stillTouching[NUMBER_OF_CIRCLE][NUMBER_OF_CIRCLE];
 int drawing_ind, tick = 0, pause = 0;
+int slice = 50, stack;
 
 
 struct Point{
@@ -163,7 +164,7 @@ void drawRectangle(){
 void positionCircle(Circle c){
     glPushMatrix();
     glTranslatef(c.centre.x, c.centre.y, c.centre.z);
-    drawCircle(c.radius, 50);
+    drawCircle(c.radius, slice);
     glPopMatrix();
 }
 
@@ -186,6 +187,12 @@ void keyboardListener(unsigned char key, int x,int y){
 
         case 'p':
             pause ^= 1;
+            break;
+        case '3':
+            slice++;
+            break;
+        case '2':
+            slice--;
             break;
 
         default:
@@ -215,8 +222,10 @@ void specialKeyListener(int key, int x,int y){
             break;
 
         case GLUT_KEY_PAGE_UP:
+            slice++;
             break;
         case GLUT_KEY_PAGE_DOWN:
+            slice--;
             break;
 
         case GLUT_KEY_INSERT:
@@ -299,6 +308,10 @@ void display(){
     glutSwapBuffers();
 }
 
+Point reflectBubble(int i, int j){
+    Point n = normalize(small[i].centre - small[j].centre);
+    velocity[i] = reflect(velocity[i], n);
+}
 
 void animate(){
     if (pause) return;
@@ -358,7 +371,9 @@ void animate(){
             stillTouching[i][j] = stillTouching[j][i] = false;
 
             if (currentlyTouch) {
-                swap(velocity[i], velocity[j]);
+                reflectBubble(i, j);
+                reflectBubble(j, i);
+                //swap(velocity[i], velocity[j]);
             }
         }
     }
