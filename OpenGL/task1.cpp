@@ -4,7 +4,9 @@
 #include<math.h>
 #include<algorithm>
 #include<time.h>
+#include<vector>
 using namespace std;
+
 #define pi (2*acos(0.0))
 
 double const EPS = 1e-9;
@@ -18,11 +20,13 @@ double keySensitivity = 10, angleSensitivity = 3;
 
 // constants about shapes
 const int slice = 50, stack = 50;
-double const BigRadius = 40, smallRadius = 20, tailRadius = 15;
-double const MAX_ANGLE = 30, MIN_ANGLE = -30;
+double const BigRadius = 40, smallRadius = 20, tailRadius = 15, bulletRadius = 5;
+double const MAX_ANGLE = 60, MIN_ANGLE = -60;
 double cylinderHeight = 150;
 double entireRotationAngle = 0, halfSphereRotationAngle = 0;
 double gunAxisRotationAngle = 0, gunRotationAngle = 0;
+const double PlaneX = 400, PlaneY = 250, PlaneZ = 250;
+const double bulletWidth = 5, diff = 5;
 
 struct Point{
     double x{},y{},z{};
@@ -71,8 +75,8 @@ struct Point{
 
 };
 
-Point u, l, r, pos;
-
+Point u, l, r, pos, gunRoot, gunDir;
+vector<Point> bullets;
 
 double dot(Point &a, Point &b){
     return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -101,7 +105,9 @@ Point cross(Point a, Point b) {
  */
 Point rotateAroundAnAxis(Point axis, Point rotatingVector, double angle){
     angle = pi / 180.0 * angle;
-    return rotatingVector * cos(angle) + cross(axis, rotatingVector) * sin(angle);
+    return rotatingVector * cos(angle) +
+    cross(axis, rotatingVector) * sin(angle) +
+     axis * dot(axis, rotatingVector) * (1 - cos(angle));
 }
 
 struct Circle{
@@ -319,9 +325,47 @@ void positionTail(){
     glPopMatrix();
 }
 
+void positionPlane(){
+    glPushMatrix();
+    //glTranslatef(PlaneX, 0, 0);
+
+    glBegin(GL_QUADS);{
+        glColor3f(0.8, 0.8, 0.8);
+        glVertex3f(PlaneX, PlaneY / 2, PlaneZ / 2);
+        glVertex3f(PlaneX, -PlaneY / 2, PlaneZ / 2);
+        glVertex3f(PlaneX, -PlaneY / 2, -PlaneZ / 2);
+        glVertex3f(PlaneX, PlaneY / 2, -PlaneZ / 2);
+    }glEnd();
+
+    glPopMatrix();
+}
+
+Point findTail(Point lineVector, double z_angle, double y_angle){
+
+    Point tmp = rotateAroundAnAxis(Point(0, 0, 1), lineVector, z_angle);
+    tmp = rotateAroundAnAxis(Point(0, 1, 0), tmp, y_angle);
+    return tmp;
+}
+
+void shotFire(){
+    double y_angle = entireRotationAngle;
+    double z_angle = gunRotationAngle + halfSphereRotationAngle;
+
+    Point root = findTail(gunRoot,halfSphereRotationAngle,entireRotationAngle);
+    Point other = findTail(gunDir, z_angle, y_angle);
+
+    double t = (PlaneX - 5 - root.x)/ other.x;
+
+    Point p = root + other * t;
+    if (p.y >= -PlaneY/2 && p.y <= PlaneY/2 && p.z >= -PlaneZ/2 && p.z <= PlaneZ/2)
+        bullets.push_back(p);
+}
+
 void drawScreen(){
     drawAxes();
     //drawRectangle()
+    glPushMatrix();
+
     glRotatef(entireRotationAngle, 0, 1, 0);
 
     positionBigSemiSphereLeft();
@@ -338,6 +382,31 @@ void drawScreen(){
     positionSmallSemiSphere();
     positionCylinder();
     positionTail();
+
+    glPopMatrix();
+
+    double y_angle = entireRotationAngle;
+    double z_angle = gunRotationAngle + halfSphereRotationAngle;
+
+    Point root = findTail(gunRoot,halfSphereRotationAngle,entireRotationAngle);
+    Point other = findTail(gunDir, z_angle, y_angle);
+
+    glColor3f(0, 0, 1);
+    drawLine(root, root + other*400);
+
+    positionPlane();
+
+    glColor3f(1, 0, 0);
+    for (Point p: bullets){
+
+        glBegin(GL_QUADS);{
+            glVertex3f(p.x,p.y +  bulletWidth / 2, p.z + bulletWidth / 2);
+            glVertex3f(p.x,p.y -bulletWidth / 2, p.z + bulletWidth / 2);
+            glVertex3f(p.x,p.y -bulletWidth / 2, p.z  - bulletWidth / 2);
+            glVertex3f(p.x,p.y +  bulletWidth / 2, p.z  - bulletWidth / 2);
+        }glEnd();
+    }
+
 }
 
 void keyboardListener(unsigned char key, int x,int y){
@@ -433,7 +502,6 @@ void specialKeyListener(int key, int x,int y){
             break;
         case GLUT_KEY_END:
             break;
-
         default:
             break;
     }
@@ -444,12 +512,13 @@ void mouseListener(int button, int state, int x, int y){	//x, y is the x-y of th
     switch(button){
         case GLUT_LEFT_BUTTON:
             if(state == GLUT_DOWN){		// 2 times?? in ONE click? -- solution is checking DOWN or UP
-                drawaxes=1-drawaxes;
+                shotFire();
             }
             break;
-
         case GLUT_RIGHT_BUTTON:
-            //........
+            if(state == GLUT_DOWN){
+                drawaxes=1-drawaxes;
+            }
             break;
 
         case GLUT_MIDDLE_BUTTON:
@@ -518,6 +587,9 @@ void init(){
     u = Point(0, 1, 0);
     l = Point(0, 0, -1);
     r = Point(1, 0, 0);
+
+    gunRoot = Point(BigRadius, 0, 0);
+    gunDir = Point(1, 0, 0);
 
     //clear the screen
     glClearColor(0,0,0,0);
