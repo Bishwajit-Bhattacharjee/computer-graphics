@@ -24,8 +24,10 @@ struct Point {
     Point operator*(double t)const;
     Point operator/(double t)const;
 
+
     friend Point operator*(double t, Point& p);
     friend ostream& operator<<(ostream &os, const Point& p);
+    friend istream& operator>>(istream &is, Point& p);
 };
 
 #endif //RASTER_BASED_GRAPHICS_PIPELINE_POINT_H

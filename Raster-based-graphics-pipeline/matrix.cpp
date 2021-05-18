@@ -68,7 +68,7 @@ Matrix::Matrix(const Point &p) {
 }
 
 ostream &operator<<(ostream &stream, const Matrix &rhs) {
-    stream << "Mat(" << rhs.row << ", " << rhs.col << ")" << endl;
+    stream <<fixed << setprecision(7) << "Mat(" << rhs.row << ", " << rhs.col << ")" << endl;
     for (int r = 0; r < rhs.row; r++){
         stream << "[";
         for (int c = 0; c < rhs.col; c++){

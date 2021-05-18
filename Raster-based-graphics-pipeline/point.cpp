@@ -50,9 +50,18 @@ Point Point::operator/(const double t) const {
 }
 
 ostream& operator<<(ostream &os, const Point &p) {
-    return os << "Point("<< p.x << "," << p.y <<"," << p.z << ")";
+    return os << fixed << setprecision(7) << p.x << " " << p.y <<" " << p.z;
 }
 
 Point operator*(double t, Point &p) {
     return p * t;
 }
+
+istream &operator>>(istream &is,Point &p) {
+    double x, y, z;
+    if (is >> x >> y >> z){
+        p.x = x, p.y = y, p.z = z;
+    }
+    return is;
+}
+
