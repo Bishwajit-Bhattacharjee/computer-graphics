@@ -10,7 +10,7 @@
 using namespace std;
 
 Point eye, look, up;
-double fovy, aspectRatio, near, far;
+double fovY, aspectRatio, near, far;
 Matrix cur = get_identity(SZ);
 
 void read_a_point(ifstream &in, Point &p){
@@ -30,14 +30,14 @@ void process_a_triangle(istream &in, ostream &out) {
 void stage1(){
     stack<Matrix> st;
     ifstream in;
-    in.open("resources/1/scene.txt");
+    in.open("resources/4/scene.txt");
 
     ofstream out;
-    out.open("out1/stage1.txt");
+    out.open("out4/stage1.txt");
 
     // read four lines
     in >> eye >> look >> up;
-    in >> fovy >> aspectRatio >> near >> far;
+    in >> fovY >> aspectRatio >> near >> far;
 
     string cmd;
     while (in >> cmd){
@@ -91,10 +91,10 @@ Matrix create_view_transformation_matrix(){
     Point u = cross(r, l);
 
     Matrix T = get_identity(SZ);
+
     T.mat[0][3] = -eye.x;
     T.mat[1][3] = -eye.y;
     T.mat[2][3] = -eye.z;
-
 
     Matrix R = get_identity(SZ);
 
@@ -109,31 +109,59 @@ Matrix create_view_transformation_matrix(){
     R.mat[0][2] = -l.x;
     R.mat[1][2] = -l.y;
     R.mat[2][2] = -l.z;
+
     return R * T;
 }
 
-void stage2(){
-    Matrix V = create_view_transformation_matrix();
+void transform_entire_file(string inp_name, string out_name, Matrix &T){
     ifstream in;
     ofstream out;
 
-    in.open("out1/stage1.txt");
-    out.open("out1/stage2.txt");
+    in.open(inp_name);
+    out.open(out_name);
 
     Point a, b, c;
 
     while (in >> a >> b >> c){
-        out << V * a << "\n";
-        out << V * b << "\n";
-        out << V * c << "\n";
+        out << T * a << "\n";
+        out << T * b << "\n";
+        out << T * c << "\n";
         out << "\n";
     }
     in.close();
     out.close();
 }
 
+void stage2(){
+    Matrix V = create_view_transformation_matrix();
+    transform_entire_file("out4/stage1.txt", "out4/stage2.txt", V);
+}
+
+void stage3(){
+    double fovX = fovY * aspectRatio;
+    fovX = (PI/180.0) * fovX;
+    fovY = (PI/180.0) * fovY;
+
+    double t = near * tan(fovY/2);
+    double r = near * tan(fovX/2);
+
+    Matrix P = get_identity(SZ);
+
+    P.mat[0][0] = near/r;
+    P.mat[1][1] = near/t;
+    P.mat[2][2] = -(far+near)/(far-near);
+    P.mat[2][3] = -(2*far*near)/(far-near);
+    P.mat[3][2] = -1;
+    P.mat[3][3] = 0;
+
+    transform_entire_file("out4/stage2.txt",
+                          "out4/stage3.txt", P);
+
+}
+
 int main(){
     stage1();
     stage2();
+    stage3();
     cout << "process ended" << endl;
 }
