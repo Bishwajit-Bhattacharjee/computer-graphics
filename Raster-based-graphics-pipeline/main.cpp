@@ -5,6 +5,7 @@
 #include "point.h"
 #include "matrix.h"
 #include "helper.h"
+#include "z_buffer.h"
 
 #include <bits/stdc++.h>
 using namespace std;
@@ -13,9 +14,6 @@ Point eye, look, up;
 double fovY, aspectRatio, near, far;
 Matrix cur = get_identity(SZ);
 
-void read_a_point(ifstream &in, Point &p){
-    in >> p.x >> p.y >> p.z;
-}
 
 void process_a_triangle(istream &in, ostream &out) {
     Point a, b, c;
@@ -159,9 +157,17 @@ void stage3(){
 
 }
 
+
+void stage4(){
+    read_config("config.txt");
+    read_triangle("stage3.txt");
+    z_buffer_algorithm();
+}
+
 int main(){
-    stage1();
-    stage2();
-    stage3();
+//    stage1();
+//    stage2();
+//    stage3();
+    stage4();
     cout << "process ended" << endl;
 }

@@ -17,5 +17,4 @@ Matrix create_translation_matrix(Point p);
 Matrix create_scaling_matrix(Point p);
 Matrix create_rotation_matrix(double angle, Point axis);
 Point rodriguesFormula(Point rotatingVector, Point axis, double angle);
-
 #endif //RASTER_BASED_GRAPHICS_PIPELINE_HELPER_H
