@@ -8,7 +8,7 @@ using namespace std;
 #define pi (2*acos(0.0))
 
 double const EPS = 0;
-int const NUMBER_OF_CIRCLE = 2;
+int const NUMBER_OF_CIRCLE = 5;
 double cameraHeight;
 double cameraAngle;
 int drawgrid;

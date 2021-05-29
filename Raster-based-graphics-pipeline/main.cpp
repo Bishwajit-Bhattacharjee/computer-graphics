@@ -157,7 +157,6 @@ void stage3(){
 
 }
 
-
 void stage4(){
     read_config("resources/4/config.txt");
     read_triangle("resources/4/stage3.txt");

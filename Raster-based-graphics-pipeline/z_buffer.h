@@ -86,12 +86,12 @@ double min(double x, double y, double z){
 
 int y_axis_to_grid(double y){
     int g = (int)round((Top_Y - y)/dy + EPS);
-    return clamp(g, 0, screen_height-1);
+    return g;
 }
 
 int x_axis_to_grid(double x){
     int g = (int)round((x - Left_X)/dx + EPS);
-    return clamp(g, 0, screen_width - 1);
+    return g;
 }
 
 pair<int, int> find_y_range(const Triangle& tr){
@@ -99,8 +99,12 @@ pair<int, int> find_y_range(const Triangle& tr){
     double mn = min(tr.points[0].y, tr.points[1].y, tr.points[2].y);
     double mx = max(tr.points[0].y, tr.points[1].y, tr.points[2].y);
 
-    mx = clamp(mx, y_min, y_max), mn = clamp(mn, y_min, y_max);
-    return {y_axis_to_grid(mx),y_axis_to_grid(mn)};
+    int mn_y = y_axis_to_grid(mn), mx_y = y_axis_to_grid(mx);
+
+    mn_y = clamp(mn_y, 0, screen_height -1);
+    mx_y = clamp(mx_y, 0, screen_height -1);
+
+    return {mx_y, mn_y};
 }
 
 
@@ -166,13 +170,19 @@ void z_buffer_algorithm(){
 
         for (yp = y_scan_top; yp <= y_scan_bottom; yp++, y_cord -= dy){
 
-            vector<Point> limiting_points= find_limiting_points(triangle, y_cord);
+            vector<Point> limiting_points = find_limiting_points(triangle, y_cord);
             if (limiting_points.empty()) continue;
 
             Point A = limiting_points.front(), B = limiting_points.back();
-            double clip_left_x = clamp(A.x, x_min, x_max), clip_right_x = clamp(B.x, x_min, x_max);
-            int x_scan_left = x_axis_to_grid(clip_left_x), x_scan_right = x_axis_to_grid(clip_right_x);
 
+            int x_scan_left = x_axis_to_grid(A.x), x_scan_right = x_axis_to_grid(B.x);
+
+            if (x_scan_left > screen_width - 1 || x_scan_right < 0) continue;
+
+            x_scan_left = clamp(x_scan_left, 0, screen_width -1);
+            x_scan_right = clamp(x_scan_right, 0, screen_width -1);
+
+            double clip_left_x = Left_X + dx * x_scan_left;
             double cur_z = A.z + (clip_left_x - A.x)/(B.x - A.x) * (B.z - A.z);
             double z_delta = dx * (B.z - A.z)/(B.x - A.x);
 
@@ -189,6 +199,20 @@ void z_buffer_algorithm(){
                 }
             }
         }
+    }
+    ofstream out;
+    out.open("my_zbuffer.txt");
+
+    out << setprecision(6) << fixed;
+
+    for(int i=0;i<screen_height;i++)
+    {
+        for(int j=0;j<screen_width;j++)
+        {
+            if(z_buffer[j][i] < z_max)
+                out<<z_buffer[j][i]<<"\t";
+        }
+        out<<"\n";
     }
 
     frame_buffer.save_image("myout.bmp");
