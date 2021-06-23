@@ -189,7 +189,7 @@ void z_buffer_algorithm(){
             for (int xp = x_scan_left; xp <= x_scan_right; xp++, cur_z += z_delta){
 
                 if (z_buffer[xp][yp] > cur_z  && EPS + cur_z > z_min){
-                    cout << "update " << xp << " " << yp << " " << cur_z << endl;
+//                    cout << "update " << xp << " " << yp << " " << cur_z << endl;
 
                     z_buffer[xp][yp] = cur_z;
                     frame_buffer.set_pixel(xp, yp,
@@ -201,7 +201,7 @@ void z_buffer_algorithm(){
         }
     }
     ofstream out;
-    out.open("my_zbuffer.txt");
+    out.open("z_buffer.txt");
 
     out << setprecision(6) << fixed;
 

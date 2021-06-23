@@ -10,9 +10,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 Point eye, look, up;
 double fovY, aspectRatio, near, far;
 Matrix cur = get_identity(SZ);
+
+string scene, config;
 
 
 void process_a_triangle(istream &in, ostream &out) {
@@ -28,11 +31,18 @@ void process_a_triangle(istream &in, ostream &out) {
 void stage1(){
     stack<Matrix> st;
     ifstream in;
-    in.open("resources/4/scene.txt");
-
+    in.open(scene);
+    if (!in.is_open()) {
+        cout << scene << " could not open" << endl;
+        exit(1);
+    }
     ofstream out;
-    out.open("out4/stage1.txt");
+    out.open("stage1.txt");
 
+    if (!out.is_open()) {
+        cout << "stage1" << " could not open" << endl;
+        exit(1);
+    }
     // read four lines
     in >> eye >> look >> up;
     in >> fovY >> aspectRatio >> near >> far;
@@ -132,7 +142,8 @@ void transform_entire_file(string inp_name, string out_name, Matrix &T){
 
 void stage2(){
     Matrix V = create_view_transformation_matrix();
-    transform_entire_file("out4/stage1.txt", "out4/stage2.txt", V);
+
+    transform_entire_file("stage1.txt", "stage2.txt", V);
 }
 
 void stage3(){
@@ -152,22 +163,33 @@ void stage3(){
     P.mat[3][2] = -1;
     P.mat[3][3] = 0;
 
-    transform_entire_file("out4/stage2.txt",
-                          "out4/stage3.txt", P);
+    transform_entire_file("stage2.txt",
+                          "stage3.txt", P);
 
 }
 
 void stage4(){
-    read_config("resources/4/config.txt");
-    read_triangle("resources/4/stage3.txt");
+    read_config(config);
+    read_triangle("stage3.txt");
     z_buffer_algorithm();
 }
 
-int main(){
+int main(int argc, char* argv[]){
     srand(time(NULL));
-//    stage1();
-//    stage2();
-//    stage3();
+
+
+    if (argc != 3){
+        cout << "Provide scene.txt and config.txt files" << endl;
+        exit(1);
+    }
+
+    scene = string(argv[1]);
+    config = string(argv[2]);
+    cout << scene << " " << config << endl;
+
+    stage1();
+    stage2();
+    stage3();
     stage4();
     cout << "process ended" << endl;
 }
