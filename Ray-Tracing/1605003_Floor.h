@@ -17,28 +17,28 @@ void drawSquare(double a, int col)
     }glEnd();
 }
 
-struct Floor: Object{
-    Floor(int floor_width, int tile_width){
-        reference_point = Point(-1.0*floor_width/2, -1.0*floor_width/2, 0);
-        width = tile_width;
-        length = floor_width;
-        shine = 1;
-    }
-    void draw() override{
-        int limit = (int)(length/width + 1e-9);
-        for (int i = 0; i < limit; i++){
-            for (int j = 0; j < limit; j++){
-                Point cur = reference_point;
-                cur.x += i * width;
-                cur.y += j * width;
-                glPushMatrix();
-                glTranslatef(cur.x, cur.y, 0);
-                drawSquare(width, (i+j)%2);
-                glPopMatrix();
-            }
-        }
-    }
-};
+//struct Floor: Object{
+//    Floor(int floor_width, int tile_width){
+//        reference_point = Point(-1.0*floor_width/2, -1.0*floor_width/2, 0);
+//        width = tile_width;
+//        length = floor_width;
+//        shine = 1;
+//    }
+//    void draw() override{
+//        int limit = (int)(length/width + 1e-9);
+//        for (int i = 0; i < limit; i++){
+//            for (int j = 0; j < limit; j++){
+//                Point cur = reference_point;
+//                cur.x += i * width;
+//                cur.y += j * width;
+//                glPushMatrix();
+//                glTranslatef(cur.x, cur.y, 0);
+//                drawSquare(width, (i+j)%2);
+//                glPopMatrix();
+//            }
+//        }
+//    }
+//};
 
 #define RAY_TRACING_1605003_FLOOR_H
 

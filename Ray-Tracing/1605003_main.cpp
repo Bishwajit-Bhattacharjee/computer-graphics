@@ -21,8 +21,10 @@ const int FlOORWIDTH = 1000, TILEWIDTH = 20;
 // constants about shapes
 vector<Object*> objects;
 vector<Light*> lights;
+int level_of_recursion;
+
 Point u, l, r, eye;
-int level_of_recursion, pixels, imageWidth, imageHeight;
+int pixels, imageWidth, imageHeight;
 double const viewAngle = 80;
 
 void drawAxes() {
@@ -70,11 +72,23 @@ void capture(){
         for (int j = 0; j < imageHeight; j++){
             Point curPixel = topLeft + r*i*du - u*j*dv;
             Ray ray(eye, curPixel - eye);
-            Color dummy;
-
+            Color dummy, color;
+            double tMin = 1e9;
+            Object* nearestObject = nullptr;
+            for (auto object : objects){
+                double t = object->intersect(ray, dummy, 0);
+                if (t < 0) continue;
+                if (t < tMin) {
+                    tMin = t;
+                    nearestObject = object;
+                }
+            }
+            if (nearestObject){
+                tMin = nearestObject->intersect(ray, color, 1);
+                image.set_pixel(i, j, color.x * 255, color.y * 255 , color.z * 255); // color should be multiplied by 255?
+            }
         }
     }
-
     image.save_image("my_out.bmp");
 }
 
@@ -242,7 +256,7 @@ void loadData(){
             objects.push_back(obj);
         }
     }
-    objects.push_back(new Floor(FlOORWIDTH, TILEWIDTH));
+//    objects.push_back(new Floor(FlOORWIDTH, TILEWIDTH));
 
     int no_lights;
     in >> no_lights;

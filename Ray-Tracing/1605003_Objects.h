@@ -4,6 +4,7 @@
 
 #ifndef RAY_TRACING_1605003_OBJECT_H
 #include "1605003_Point.h"
+#include "1605003_Ray.h"
 
 using namespace std;
 
@@ -15,6 +16,9 @@ struct Object {
     int shine;
     Object(){}
     virtual void draw();
+    virtual Point getNormal(Point &p);
+    virtual double nearestTouch(Ray &r);
+    virtual double intersect(Ray &r, Color &c, int level);
     virtual istream& input(istream &is);
     virtual ostream& output(ostream &os);
 
@@ -43,6 +47,18 @@ void Object::draw() {
 
 ostream &Object::output(ostream &os) {
     return os;
+}
+
+double Object::intersect(Ray &r, Color &c, int level) {
+    return -1.0;
+}
+
+Point Object::getNormal(Point &p) {
+    return Point();
+}
+
+double Object::nearestTouch(Ray &r) {
+    return 0;
 }
 
 

@@ -1,5 +1,4 @@
 //
-// Created by bishwajit on ২৩/৬/২১.
 //
 
 #ifndef RAY_TRACING_1605003_SPHERE_H
@@ -61,7 +60,7 @@ struct Sphere:Object {
             }
         }
     }
-    istream& input(istream &is){
+    istream& input(istream &is) override{
         is >> reference_point >> length >> color;
         for (int i = 0; i < 4; i++){
             is >> coEfficients[i];
@@ -69,8 +68,7 @@ struct Sphere:Object {
         is >> shine;
         return is;
     }
-
-    ostream& output(ostream& os){
+    ostream& output(ostream& os) override{
         os << reference_point << endl;
         os << "radius " << length << endl;
         os << "color " << color << endl;
@@ -81,6 +79,30 @@ struct Sphere:Object {
         os << endl;
         os << "Shine " << shine << endl;
         return os;
+    }
+
+    double intersect(Ray &r, Color &c, int depth) override{
+        double tMin = nearestTouch(r);
+        if (depth == 0) return tMin;
+        Point intersectingPoint = r.start + r.dir*tMin;
+        c = this->color;
+        return tMin;
+    }
+    double nearestTouch(Ray &r) override{
+        Point r_o = r.start - reference_point;
+        double a = 1;
+        double b = 2 * dot(r.dir, r_o);
+        double c = dot(r_o, r_o) - length*length;
+        double d = b*b - 4*a*c;
+        if (d < 0) return -1;
+        d = sqrt(d);
+        double t_p = (-b+d)/2, t_m = (-b-d)/2;
+        if (t_m >= 0) return t_m;
+        if (t_p >= 0) return t_p;
+        return -1;
+    }
+    Point getNormal(Point &p) override{
+        return normalize(p - this->reference_point);
     }
 };
 

@@ -10,7 +10,7 @@ struct Ray{
     Point dir;
     Ray() = default;
     Ray(Point st, Point dir){
-        start(st);
+        this->start = st;
         this->dir = normalize(dir);
     }
 
