@@ -3,6 +3,8 @@
 //
 
 #ifndef RAY_TRACING_1605003_FLOOR_H
+#define RAY_TRACING_1605003_FLOOR_H
+
 #include "1605003_Objects.h"
 #include <GL/glut.h>
 
@@ -40,6 +42,5 @@ void drawSquare(double a, int col)
 //    }
 //};
 
-#define RAY_TRACING_1605003_FLOOR_H
 
 #endif //RAY_TRACING_1605003_FLOOR_H

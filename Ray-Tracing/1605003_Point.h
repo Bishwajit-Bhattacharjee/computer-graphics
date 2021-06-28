@@ -2,12 +2,14 @@
 // Created by bishwajit on ২২/৬/২১.
 //
 #ifndef RAY_TRACING_1605003_POINT_H
+#define RAY_TRACING_1605003_POINT_H
+
 #include <bits/stdc++.h>
 using namespace std;
 
 #define pi (2*acos(0.0))
 
-struct Point{
+struct Point {
     double x{},y{},z{};
     Point(){}
     Point(double _x, double _y, double _z):x(_x), y(_y), z(_z){}
@@ -108,15 +110,17 @@ Point rotateAroundAnAxis(Point axis, Point rotatingVector, double angle){
 
 
 struct Color: Point{
-
-    void clip(Color& c){
-        c.x = clamp(c.x, 0.0, 1.0);
-        c.y = clamp(c.y, 0.0, 1.0);
-        c.z = clamp(c.z, 0.0, 1.0);
+    Color()= default;
+    Color(Point p): Point(p){
+        this->clip();
+    }
+    void clip(){
+        x = clamp(x, 0.0, 1.0);
+        y = clamp(y, 0.0, 1.0);
+        z = clamp(z, 0.0, 1.0);
     }
 };
 
 
-#define RAY_TRACING_1605003_POINT_H
 
 #endif //RAY_TRACING_1605003_POINT_H

@@ -3,6 +3,8 @@
 //
 
 #ifndef RAY_TRACING_1605003_LIGHT_H
+#define RAY_TRACING_1605003_LIGHT_H
+
 #include "1605003_Objects.h"
 
 struct Light {
@@ -26,6 +28,5 @@ ostream &operator<<(ostream & os, Light &l){
     os << "color " << l.color << endl;
     return os;
 }
-#define RAY_TRACING_1605003_LIGHT_H
 
 #endif //RAY_TRACING_1605003_LIGHT_H

@@ -2,6 +2,8 @@
 //
 
 #ifndef RAY_TRACING_1605003_SPHERE_H
+#define RAY_TRACING_1605003_SPHERE_H
+
 #include "1605003_Objects.h"
 #include "1605003_Point.h"
 #include <GL/glut.h>
@@ -81,13 +83,10 @@ struct Sphere:Object {
         return os;
     }
 
-    double intersect(Ray &r, Color &c, int depth) override{
-        double tMin = nearestTouch(r);
-        if (depth == 0) return tMin;
-        Point intersectingPoint = r.start + r.dir*tMin;
-        c = this->color;
-        return tMin;
+    Color getColorAt(Point &p) override{
+        return this->color;
     }
+
     double nearestTouch(Ray &r) override{
         Point r_o = r.start - reference_point;
         double a = 1;
@@ -106,6 +105,5 @@ struct Sphere:Object {
     }
 };
 
-#define RAY_TRACING_1605003_SPHERE_H
 
 #endif //RAY_TRACING_1605003_SPHERE_H

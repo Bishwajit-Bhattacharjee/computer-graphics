@@ -68,6 +68,7 @@ void capture(){
     topLeft = topLeft + r* 0.5*du - u * 0.5*dv;
 
     cout << "topLeft" << topLeft << endl;
+
     for (int i = 0; i < imageWidth; i++){
         for (int j = 0; j < imageHeight; j++){
             Point curPixel = topLeft + r*i*du - u*j*dv;
@@ -85,7 +86,7 @@ void capture(){
             }
             if (nearestObject){
                 tMin = nearestObject->intersect(ray, color, 1);
-                image.set_pixel(i, j, color.x * 255, color.y * 255 , color.z * 255); // color should be multiplied by 255?
+                image.set_pixel(i, j, color.x * 255, color.y * 255 , color.z * 255); // color should be multiplied by 255
             }
         }
     }
