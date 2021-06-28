@@ -76,7 +76,7 @@ istream &operator>>(istream &is,Point &p) {
     return is;
 }
 
-double dot(Point &a, Point &b){
+double dot(Point a, Point b){
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
@@ -114,6 +114,20 @@ struct Color: Point{
     Color(Point p): Point(p){
         this->clip();
     }
+
+    Color operator*(double t){
+        Color tmp = Point(*this) * t;
+        return tmp;
+    }
+
+    Color operator*(Color &rhs){
+        Color c;
+        c.x = x * rhs.x;
+        c.y = y * rhs.y;
+        c.z = z * rhs.z;
+        return c;
+    }
+
     void clip(){
         x = clamp(x, 0.0, 1.0);
         y = clamp(y, 0.0, 1.0);

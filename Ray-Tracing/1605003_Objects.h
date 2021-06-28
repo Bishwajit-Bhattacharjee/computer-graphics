@@ -45,12 +45,20 @@ double Object::intersect(Ray &r, Color &c, int depth) {
     c = intersectingPointColor * coEfficients[0];
     Point normal = getNormal(intersectingPoint);
 
-    for (auto light : lights){
-        Ray r = Ray(light->light_pos, light->light_pos - intersectionPoint);
+    for (Light* light : lights){
+        Ray ray_l = Ray(light->light_pos, intersectingPoint - light->light_pos);
+        // diffuse component
+        double lambertValue = max(0.0, 
+            dot(normal, normalize(light->light_pos - intersectingPoint)));
 
-        cout << r
+        Point reflected = ray_l.dir - 2 * dot(normal, ray_l.dir) * normal;
+        reflected *= -1;
+
+        double phongValue = max(0.0, dot(reflected, r.dir));
+
+        c += light->color * coEfficients[1] * lambertValue * intersectingPointColor;
+        c += light->color * coEfficients[2] * pow(phongValue, shine) * intersectingPointColor;
     }
-
 
     return tMin;
 }
