@@ -12,9 +12,8 @@ using namespace std;
 
 #define pi (2*acos(0.0))
 
-double const EPS = 1e-9;
 int drawaxes;
-double keySensitivity = 10, angleSensitivity = 3;
+double keySensitivity = 2, angleSensitivity = 0.1;
 const int windowHeight = 500, windowWidth = 500;
 const int FlOORWIDTH = 1000, TILEWIDTH = 20;
 
@@ -22,6 +21,9 @@ const int FlOORWIDTH = 1000, TILEWIDTH = 20;
 vector<Object*> objects;
 vector<Light*> lights;
 int level_of_recursion;
+bool isShadowOn = true;
+bool isRecursionLevelOn = false;
+
 
 Point u, l, r, eye;
 int pixels, imageWidth, imageHeight;
@@ -61,13 +63,12 @@ void capture(){
         }
     }
     double planeDistance = (windowHeight / 2.0) / tan(viewAngle/2 * pi/180 );
-    cout << "planeDistance " << planeDistance << endl;
     Point topLeft = eye + l * planeDistance - r * windowWidth/2 + u * windowHeight/2;
     double du = 1.0 * windowWidth / imageWidth;
     double dv = 1.0 * windowHeight / imageHeight;
     topLeft = topLeft + r* 0.5*du - u * 0.5*dv;
 
-    cout << "topLeft" << topLeft << endl;
+    cout << "eyePosition: " << eye << endl;
 
     for (int i = 0; i < imageWidth; i++){
         for (int j = 0; j < imageHeight; j++){
@@ -121,6 +122,10 @@ void keyboardListener(unsigned char key, int x,int y){
         case '6':
             r = rotateAroundAnAxis(l, r, -angleSensitivity);
             u = rotateAroundAnAxis(l, u, -angleSensitivity);
+            break;
+
+        case 's':
+            isShadowOn ^= 1;
             break;
         default:
             break;
