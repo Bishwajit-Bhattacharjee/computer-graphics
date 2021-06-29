@@ -12,6 +12,7 @@
 using namespace std;
 
 double const EPS = 1e-7;
+double const OFFSET = 1e-7;
 
 struct Object;
 
@@ -61,6 +62,35 @@ double Object::intersect(Ray &rayFromEye, Color &c, int depth) {
         if (!isShadowOn || !isPointInShadow(rayFromLight, intersectingPoint)) {
             updateDiffuseAndSpecularComponent(rayFromEye, c, intersectingPoint, intersectingPointColor, normal, light);
         }
+    }
+
+    if (!isRecursionLevelOn) {
+        return tMin;
+    }
+
+    if (depth >= level_of_recursion) return tMin;
+
+    Point reflectedDir = rayFromEye.dir - 2 * dot(rayFromEye.dir, normal) * normal;
+    Ray reflectedRay = Ray(intersectingPoint + reflectedDir*OFFSET, reflectedDir);
+
+    
+    double nearestDist = 1e9;
+    Object* nearestObject = nullptr;
+    Color dummy;
+    for (auto object : objects){
+        double t = object->intersect(reflectedRay, dummy, 0);
+        if (t < 0) continue;
+        if (t < nearestDist) {
+            nearestDist = t;
+            nearestObject = object;
+        }
+    }
+
+    if (nearestObject) {
+        Color reflectedColor;
+        assert(fabs(norm(reflectedColor)) < EPS);
+        nearestObject->intersect(reflectedRay, reflectedColor, depth+1);
+        c = c + reflectedColor * coEfficients[3];
     }
 
     return tMin;

@@ -13,7 +13,7 @@ using namespace std;
 #define pi (2*acos(0.0))
 
 int drawaxes;
-double keySensitivity = 2, angleSensitivity = 0.1;
+double keySensitivity = 2, angleSensitivity = 1;
 const int windowHeight = 500, windowWidth = 500;
 const int FlOORWIDTH = 1000, TILEWIDTH = 20;
 
@@ -22,7 +22,7 @@ vector<Object*> objects;
 vector<Light*> lights;
 int level_of_recursion;
 bool isShadowOn = true;
-bool isRecursionLevelOn = false;
+bool isRecursionLevelOn = true;
 
 
 Point u, l, r, eye;
@@ -127,6 +127,11 @@ void keyboardListener(unsigned char key, int x,int y){
         case 's':
             isShadowOn ^= 1;
             break;
+
+        case 'r':
+            isRecursionLevelOn ^= 1;
+            break;
+
         default:
             break;
     }
@@ -248,10 +253,13 @@ void loadData(){
         exit(1);
     }
     in >> level_of_recursion >> pixels;
+    cout << "input " << level_of_recursion << " " << pixels << endl;
     imageHeight = imageWidth = pixels;
 
     int no_obs;
     in >> no_obs;
+
+    cout << "no obs " << no_obs << endl;
 
     for (int i = 0; i < no_obs; i++){
         string name;
@@ -266,6 +274,9 @@ void loadData(){
 
     int no_lights;
     in >> no_lights;
+
+    cout << "no lights " << no_lights << endl;
+
     for (int i = 0; i < no_lights; i++){
         auto* tmp = new Light();
         in >> (*tmp);
@@ -280,7 +291,10 @@ void loadData(){
     for (auto light: lights){
         cout << *light << endl;
     }
+
+    cout << "input completed" << endl;
 }
+
 
 int main(int argc, char **argv){
 
