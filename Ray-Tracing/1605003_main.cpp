@@ -8,6 +8,7 @@
 #include "bitmap_image.hpp"
 #include "1605003_Ray.h"
 #include "1605003_Triangle.h"
+#include "1605003_General.h"
 
 using namespace std;
 
@@ -277,7 +278,11 @@ void loadData(){
         else if (name == "triangle") {
             obj = new Triangle();
         }
+        else if (name == "general"){
+            obj = new General();
+        }
 
+        cout << name << endl;
         assert(obj != nullptr);
         in >> (*obj);
         objects.push_back(obj);
