@@ -7,6 +7,7 @@
 #include "1605003_Floor.h"
 #include "bitmap_image.hpp"
 #include "1605003_Ray.h"
+#include "1605003_Triangle.h"
 
 using namespace std;
 
@@ -52,6 +53,10 @@ void drawScreen(){
 
     for (auto object: objects){
         object->draw();
+    }
+
+    for (auto light: lights) {
+        light->draw();
     }
 }
 
@@ -264,13 +269,20 @@ void loadData(){
     for (int i = 0; i < no_obs; i++){
         string name;
         in >> name;
+        Object* obj = nullptr;
+
         if (name == "sphere"){
-            Object* obj = new Sphere();
-            in >> (*obj);
-            objects.push_back(obj);
+            obj = new Sphere();
         }
+        else if (name == "triangle") {
+            obj = new Triangle();
+        }
+
+        assert(obj != nullptr);
+        in >> (*obj);
+        objects.push_back(obj);
     }
-//    objects.push_back(new Floor(FlOORWIDTH, TILEWIDTH));
+    objects.push_back(new Floor(FlOORWIDTH, TILEWIDTH));
 
     int no_lights;
     in >> no_lights;

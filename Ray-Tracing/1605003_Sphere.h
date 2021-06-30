@@ -12,7 +12,7 @@ const int slices = 50, stacks = 50;
 
 
 struct Sphere:Object {
-    Sphere(){}
+    Sphere()= default;
     Sphere(Point c, double radius){
         reference_point = c;
         length = radius;
