@@ -30,6 +30,7 @@ struct Floor: Object{
         coEfficients[3] = 0.5;
         shine = 1;
     }
+
     void draw() override{
         int limit = (int)(length/width + 1e-9);
         for (int i = 0; i < limit; i++){

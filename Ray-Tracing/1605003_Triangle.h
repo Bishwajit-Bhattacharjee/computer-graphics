@@ -10,6 +10,10 @@ struct Triangle:Object {
     Point a, b, c;
     Triangle() = default;
 
+    double determinant(Point a, Point b, Point c){
+        return a.x * (b.y*c.z - c.y*b.z) + b.x * (a.z*c.y - a.y*c.z) + c.x * (a.y*b.z - b.y*a.z);
+    }
+
     void draw() override {
         glPushMatrix();
         glColor3f(color.x, color.y, color.z);
@@ -30,7 +34,17 @@ struct Triangle:Object {
     }
 
     double nearestTouch(Ray &r) override {
-        return Object::nearestTouch(r);
+        double A = determinant(r.dir, a - b, a - c);
+        if (fabs(A) < EPS) return -1;
+
+        double t = determinant(a - r.start, a - b, a - c) / A;
+        double beta = determinant(r.dir, a - r.start, a - c) / A;
+        double gamma = determinant(r.dir, a - b, a - r.start) / A;
+
+        if (beta + gamma < 1 + EPS && beta + EPS > 0 && gamma + EPS > 0 && t + EPS > 0) {
+            return t;
+        }
+        return -1.0;
     }
 
     istream &input(istream &is) override {
