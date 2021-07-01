@@ -62,6 +62,8 @@ void drawScreen(){
 }
 
 void capture(){
+    auto st = clock();
+
     bitmap_image image(imageWidth, imageHeight);
     for (int i = 0; i < imageWidth; i++){
         for (int j = 0; j < imageHeight; j++){
@@ -98,7 +100,8 @@ void capture(){
         }
     }
     image.save_image("my_out.bmp");
-    image.clear();
+
+    cout << "time required " <<  1.0 * (clock() - st)/ CLOCKS_PER_SEC << endl;
 }
 
 void keyboardListener(unsigned char key, int x,int y){
