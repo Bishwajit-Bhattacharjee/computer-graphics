@@ -98,6 +98,7 @@ void capture(){
         }
     }
     image.save_image("my_out.bmp");
+    image.clear();
 }
 
 void keyboardListener(unsigned char key, int x,int y){
@@ -313,7 +314,22 @@ void loadData(){
 }
 
 
+
 int main(int argc, char **argv){
+
+    auto exiting = [](){
+        cout << "Exiting " << endl;
+        for (Light* light: lights){
+            delete light;
+        }
+        for (Object* object: objects){
+            delete object;
+        }
+        cout << "Done with cleaning!" <<endl;
+        cout << "Now, I can die in peace" << endl;
+    };
+
+    atexit(exiting);
 
     loadData();
     /**

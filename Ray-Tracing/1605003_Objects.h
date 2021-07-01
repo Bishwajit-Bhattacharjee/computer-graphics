@@ -33,6 +33,7 @@ struct Object {
     double intersect(Ray &r, Color &c, int level);
     void updateDiffuseAndSpecularComponent(Ray &r, Color &c, Point &intersectingPoint, Color &intersectingPointColor, Point &normal, Light* light);
     bool isPointInShadow(Ray &rayFromLight, Point &intersecingPoint);
+    Point getNormalConsideringRayDirection(Ray &r, Point &p);
 
     virtual void draw();
     virtual Color getColorAt(Point &p);
@@ -54,7 +55,7 @@ double Object::intersect(Ray &rayFromEye, Color &c, int depth) {
 
     c = intersectingPointColor * coEfficients[0]; // ambient component
     
-    Point normal = getNormal(intersectingPoint);
+    Point normal = getNormalConsideringRayDirection(rayFromEye, intersectingPoint);
 
     for (Light* light : lights){
         Ray rayFromLight = Ray(light->light_pos, intersectingPoint - light->light_pos);
@@ -107,7 +108,9 @@ bool Object::isPointInShadow(Ray &rayFromLight, Point &intersectingPoint){
         if (curVal < 0) continue;
         if (curVal < tMin) tMin = curVal;
     }
-
+    if (tMin > 1e8) {
+        cout << rayFromLight.start << "  " << rayFromLight.dir << " " << tMin << endl;
+    }
     assert(tMin < 1e8);
     return objectDistance > tMin + EPS;
 }
@@ -165,6 +168,11 @@ Color Object::getColorAt(Point &p) {
     return Color();
 }
 
+Point Object::getNormalConsideringRayDirection(Ray &r, Point &p) {
+    Point normal = this->getNormal(p);
+    if (dot(normal, r.dir) > 0) return normal * -1;
+    return normal;
+}
 
 
 #endif //RAY_TRACING_1605003_OBJECT_H

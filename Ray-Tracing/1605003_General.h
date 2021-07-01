@@ -18,9 +18,9 @@ struct General:Object {
         Point p = r.start + r.dir * t;
         Point ref = reference_point;
 
-        bool xOkay = (fabs(length) < EPS) || (ref.x - length < p.x + EPS && p.x < ref.x + length + EPS);
-        bool yOkay = (fabs(width) < EPS) || (ref.y - width < p.y + EPS && p.y < ref.y + width + EPS);
-        bool zOkay = (fabs(height) < EPS) || (ref.z - height < p.z + EPS && p.z < ref.z + height + EPS);
+        bool xOkay = (fabs(length) < EPS) || (ref.x < p.x + EPS && p.x < ref.x + length + EPS);
+        bool yOkay = (fabs(width) < EPS) || (ref.y < p.y + EPS && p.y < ref.y + width + EPS);
+        bool zOkay = (fabs(height) < EPS) || (ref.z < p.z + EPS && p.z < ref.z + height + EPS);
 
         return xOkay && yOkay && zOkay;
     }
@@ -33,7 +33,7 @@ struct General:Object {
         Point n;
         n.x = 2*A*p.x + D*p.y + E*p.z + G;
         n.y = 2*B*p.y + D*p.x + F*p.z + H;
-        n.z = 2*C*p.z + E*p.x + E*p.y + I;
+        n.z = 2*C*p.z + E*p.x + F*p.y + I;
         return normalize(n);
     }
 
@@ -78,8 +78,9 @@ struct General:Object {
 
     ostream &output(ostream &os) override {
         os << "general" << endl;
-        os << A << B << C << D << E << F << G << H << I << J << endl;
-        os << length << width << height << endl;
+        os << A <<" " << B << " " <<  C <<" " <<  D <<" " <<  E << " " << F << " " << G << " " <<  H << " " <<  I <<" " <<  J << endl;
+        cout << reference_point << endl;
+        os << length << " " <<  width << " " <<  height << endl;
         os << color << endl;
         for (auto &coEfficient: coEfficients) os << coEfficient;
         os << shine << endl;
