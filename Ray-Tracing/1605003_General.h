@@ -56,6 +56,8 @@ struct General:Object {
             if (t + EPS >= 0 && isInside(r, t)) return t;
         }
         else {
+            if (a < 0) a *= -1, b *= -1, c *= -1;
+
             double d = b*b - 4*a*c;
             if (d < 0) return -1;
             d = sqrt(d);
