@@ -20,12 +20,14 @@ extern vector<Object*> objects;
 extern vector<Light*> lights;
 extern int level_of_recursion;
 extern bool isShadowOn;
-extern bool isRecursionLevelOn;
+extern bool isRefractionOn;
 
 
 struct Object {
     Point reference_point;
     double height, width, length;
+    double eta = 1.5;
+    double refractionCoeff = 1.0;
     Color color;
     double coEfficients[4];
     int shine;
@@ -34,8 +36,12 @@ struct Object {
     void updateDiffuseAndSpecularComponent(Ray &r, Color &c, Point &intersectingPoint, Color &intersectingPointColor, Point &normal, Light* light);
     bool isPointInShadow(Ray &rayFromLight, Point &intersecingPoint);
     Point getNormalConsideringRayDirection(Ray &r, Point &p);
+    void refraction(Ray &rayFromEye, Point &normal, Point &intersectingPoint, Color &c, int depth);
+    void reflection(Ray &rayFromEye, Point &normal, Point &intersectingPoint, Color &c, int depth);
 
     virtual void draw();
+    virtual double getEta(Point &p);
+    virtual bool isInside(Point &p);
     virtual Color getColorAt(Point &p);
     virtual Point getNormal(Point &p);
     virtual double nearestTouch(Ray &r);
@@ -65,16 +71,20 @@ double Object::intersect(Ray &rayFromEye, Color &c, int depth) {
         }
     }
 
-    if (!isRecursionLevelOn) {
-        return tMin;
-    }
-
     if (depth >= level_of_recursion) return tMin;
 
+    reflection(rayFromEye, normal, intersectingPoint, c, depth);
+    if (isRefractionOn) {
+        refraction(rayFromEye, normal, intersectingPoint, c, depth);
+    }
+    return tMin;
+}
+
+
+void Object::reflection(Ray &rayFromEye, Point &normal, Point &intersectingPoint, Color &c, int depth){
     Point reflectedDir = rayFromEye.dir - 2 * dot(rayFromEye.dir, normal) * normal;
     Ray reflectedRay = Ray(intersectingPoint + reflectedDir*OFFSET, reflectedDir);
 
-    
     double nearestDist = 1e9;
     Object* nearestObject = nullptr;
     Color dummy;
@@ -93,9 +103,42 @@ double Object::intersect(Ray &rayFromEye, Color &c, int depth) {
         nearestObject->intersect(reflectedRay, reflectedColor, depth+1);
         c = c + reflectedColor * coEfficients[3];
     }
-
-    return tMin;
 }
+
+
+void Object::refraction(Ray &rayFromEye, Point &normal, Point &intersectingPoint, Color &c, int depth){
+
+    double ratio = getEta(rayFromEye.start);
+    double dot_value = dot(rayFromEye.dir * -1, normal);
+    double sin_2_theta = pow(ratio , 2) * (1 - dot_value*dot_value);
+
+    if (sin_2_theta > 1) return; 
+
+    Point refractedDir = ratio * rayFromEye.dir + (ratio * dot_value
+            - sqrt(1.0 - sin_2_theta)) * normal;
+
+    Ray refractedRay = Ray(intersectingPoint + refractedDir*OFFSET, refractedDir);
+
+    double nearestDist = 1e9;
+    Object* nearestObject = nullptr;
+    Color dummy;
+    for (auto object : objects){
+        double t = object->intersect(refractedRay, dummy, 0);
+        if (t < 0) continue;
+        if (t < nearestDist) {
+            nearestDist = t;
+            nearestObject = object;
+        }
+    }
+
+    if (nearestObject) {
+        Color refractedColor;
+        assert(fabs(norm(refractedColor)) < EPS);
+        nearestObject->intersect(refractedRay, refractedColor, depth + 1);
+        c = c + refractedColor * refractionCoeff;
+    }
+}
+
 
 bool Object::isPointInShadow(Ray &rayFromLight, Point &intersectingPoint){
 
@@ -128,11 +171,16 @@ void Object::updateDiffuseAndSpecularComponent(Ray &rayFromEye, Color &c, Point 
 
     c = c + light->color * coEfficients[1] * lambertValue * intersectingPointColor;
     c = c + light->color * coEfficients[2] * pow(phongValue, shine);
-
-//    assert(c.x <= 1.0 && c.y <= 1.0 && c.z <= 1.0);
 }
 
 
+bool Object::isInside(Point &p){
+    return false;
+}
+
+double Object::getEta(Point &p){
+    return 1.0/this->eta;
+}
 
 istream& operator>>(istream &is, Object &o){
     o.input(is);

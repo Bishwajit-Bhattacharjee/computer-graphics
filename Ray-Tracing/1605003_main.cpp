@@ -24,7 +24,7 @@ vector<Object*> objects;
 vector<Light*> lights;
 int level_of_recursion;
 bool isShadowOn = true;
-bool isRecursionLevelOn = true;
+bool isRefractionOn = false;
 
 
 Point u, l, r, eye;
@@ -140,7 +140,7 @@ void keyboardListener(unsigned char key, int x,int y){
             break;
 
         case 'r':
-            isRecursionLevelOn ^= 1;
+            isRefractionOn ^= 1;
             break;
 
         default:

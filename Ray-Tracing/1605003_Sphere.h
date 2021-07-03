@@ -62,6 +62,19 @@ struct Sphere:Object {
             }
         }
     }
+    bool isInside(Point &p) override {
+        Point distVector = p - reference_point;
+        double dist = dot(distVector, distVector);
+        return (length * length > dist + EPS);
+    }
+    double getEta(Point &p) override {
+        double ratio = 1.0/ this->eta;
+        if (isInside(p)){
+            ratio = 1/ratio;   
+        }
+        // cout << "sphere Eta" << "\n";
+        return ratio;
+    }    
     istream& input(istream &is) override{
         is >> reference_point >> length >> color;
         for (int i = 0; i < 4; i++){

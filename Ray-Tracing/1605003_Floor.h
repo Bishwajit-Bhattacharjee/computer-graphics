@@ -6,7 +6,9 @@
 #define RAY_TRACING_1605003_FLOOR_H
 
 #include "1605003_Objects.h"
+#include "bitmap_image.hpp"
 #include <GL/glut.h>
+const bool isTextureOn = false;
 
 void drawSquare(double a, int col)
 {
@@ -20,6 +22,8 @@ void drawSquare(double a, int col)
 }
 
 struct Floor: Object{
+
+    bitmap_image texture;
     Floor(int floor_width, int tile_width){
         reference_point = Point(-1.0*floor_width/2, -1.0*floor_width/2, 0);
         width = tile_width;
@@ -29,6 +33,13 @@ struct Floor: Object{
         coEfficients[2] = 0.1;
         coEfficients[3] = 0.5;
         shine = 1;
+        refractionCoeff = 0;
+
+        if (isTextureOn) {
+            texture = bitmap_image("radha-vrindavanChandra.bmp");
+            cout << "got image" << endl;
+            cout << texture.width() << " " << texture.height() << endl;
+        }
     }
 
     void draw() override{
@@ -50,7 +61,23 @@ struct Floor: Object{
         int x = max(0, int(EPS + (p.x - reference_point.x)/ width));
         int y = max(0, int(EPS + (p.y - reference_point.y)/ width));
         bool parity = (x + y) & 1;
-        return Point(parity, parity, parity);
+
+        if (!isTextureOn || parity) {
+            return Point(parity, parity, parity);
+        }
+        else {
+            double du = width / texture.width();
+            double dv = width / texture.height();
+            double extra_x = p.x - reference_point.x - width * x;
+            double extra_y = p.y - reference_point.y - width * y;
+//            extra_x = width - extra_x;
+            extra_y = width - extra_y;
+            int i = extra_x/du;
+            int j = extra_y/dv;
+            unsigned char r, g, b;
+            texture.get_pixel(i, j, r, g, b);
+            return Point(r/255.0, g/255.0, b/255.0);
+        }
     }
 
     Point getNormal(Point &p) override {
