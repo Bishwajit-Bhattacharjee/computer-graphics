@@ -129,7 +129,7 @@ void Object::updateDiffuseAndSpecularComponent(Ray &rayFromEye, Color &c, Point 
     c = c + light->color * coEfficients[1] * lambertValue * intersectingPointColor;
     c = c + light->color * coEfficients[2] * pow(phongValue, shine);
 
-    assert(c.x <= 1.0 && c.y <= 1.0 && c.z <= 1.0);
+//    assert(c.x <= 1.0 && c.y <= 1.0 && c.z <= 1.0);
 }
 
 

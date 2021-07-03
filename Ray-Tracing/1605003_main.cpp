@@ -95,6 +95,7 @@ void capture(){
             }
             if (nearestObject){
                 tMin = nearestObject->intersect(ray, color, 1);
+                color.clip();
                 image.set_pixel(i, j, color.x * 255, color.y * 255 , color.z * 255); // color should be multiplied by 255
             }
         }

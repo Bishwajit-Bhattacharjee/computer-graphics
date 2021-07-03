@@ -112,7 +112,7 @@ Point rotateAroundAnAxis(Point axis, Point rotatingVector, double angle){
 struct Color: Point{
     Color()= default;
     Color(Point p): Point(p){
-        this->clip();
+//        this->clip();
     }
 
     Color operator*(double t){
